@@ -1,0 +1,25 @@
+# ---------- Java / Maven (backend) ----------
+target/
+*.class
+*.log
+.mvn/wrapper/maven-wrapper.jar
+
+# ---------- Node / Angular (frontend) ----------
+node_modules/
+dist/
+.angular/
+coverage/
+
+# ---------- Secrets & local config ----------
+.env
+.env.*
+!.env.example
+
+# ---------- Editors ----------
+.idea/
+*.iml
+.vscode/
+
+# ---------- Operating systems ----------
+.DS_Store
+Thumbs.db
