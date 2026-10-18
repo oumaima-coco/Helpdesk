@@ -1,0 +1,64 @@
+{
+  "realm": "helpdesk",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      { "name": "REQUESTER", "description": "Employee who submits tickets" },
+      { "name": "AGENT", "description": "Support agent who handles tickets" },
+      { "name": "TEAM_LEAD", "description": "Leads a support team and assigns tickets" },
+      { "name": "ADMIN", "description": "Manages users, teams and categories" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "helpdesk-frontend",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["http://localhost:4200/*"],
+      "webOrigins": ["http://localhost:4200"]
+    }
+  ],
+  "users": [
+    {
+      "username": "requester",
+      "email": "requester@example.com",
+      "firstName": "Demo",
+      "lastName": "Requester",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "requester", "temporary": false }],
+      "realmRoles": ["REQUESTER"]
+    },
+    {
+      "username": "agent",
+      "email": "agent@example.com",
+      "firstName": "Demo",
+      "lastName": "Agent",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "agent", "temporary": false }],
+      "realmRoles": ["AGENT"]
+    },
+    {
+      "username": "lead",
+      "email": "lead@example.com",
+      "firstName": "Demo",
+      "lastName": "Lead",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "lead", "temporary": false }],
+      "realmRoles": ["AGENT", "TEAM_LEAD"]
+    },
+    {
+      "username": "admin",
+      "email": "admin@example.com",
+      "firstName": "Demo",
+      "lastName": "Admin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "admin", "temporary": false }],
+      "realmRoles": ["ADMIN"]
+    }
+  ]
+}
