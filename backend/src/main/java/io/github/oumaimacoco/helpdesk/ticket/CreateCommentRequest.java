@@ -5,5 +5,9 @@ import jakarta.validation.constraints.Size;
 
 public record CreateCommentRequest(
         @NotBlank @Size(max = 5000) String body,
-        boolean internal) {
+        Boolean internal) {
+
+    public CreateCommentRequest {
+        internal = Boolean.TRUE.equals(internal);
+    }
 }
