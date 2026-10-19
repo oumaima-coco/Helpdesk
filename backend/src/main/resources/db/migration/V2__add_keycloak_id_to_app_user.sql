@@ -1,0 +1,2 @@
+ALTER TABLE app_user
+    ADD COLUMN keycloak_id UUID NOT NULL UNIQUE;

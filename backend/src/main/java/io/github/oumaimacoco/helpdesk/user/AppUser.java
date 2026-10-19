@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.UUID;
 
 @Entity
 @Table(name = "app_user")
@@ -18,6 +19,9 @@ public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "keycloak_id", nullable = false, unique = true, updatable = false)
+    private UUID keycloakId;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -33,13 +37,18 @@ public class AppUser {
     private Team team;
 
     protected AppUser() {
-        // required by JPA
     }
 
-    public AppUser(String email, String fullName, String preferredLanguage) {
+    public AppUser(UUID keycloakId, String email, String fullName, String preferredLanguage) {
+        this.keycloakId = keycloakId;
         this.email = email;
         this.fullName = fullName;
         this.preferredLanguage = preferredLanguage;
+    }
+
+    public void updateProfile(String email, String fullName) {
+        this.email = email;
+        this.fullName = fullName;
     }
 
     public void joinTeam(Team team) {
@@ -48,6 +57,10 @@ public class AppUser {
 
     public Long getId() {
         return id;
+    }
+
+    public UUID getKeycloakId() {
+        return keycloakId;
     }
 
     public String getEmail() {

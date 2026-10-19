@@ -1,12 +1,18 @@
 package io.github.oumaimacoco.helpdesk.security;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import io.github.oumaimacoco.helpdesk.user.AppUser;
+import io.github.oumaimacoco.helpdesk.user.CurrentUserService;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -27,6 +33,15 @@ class MeControllerTest {
 
     @MockitoBean
     private JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private CurrentUserService currentUserService;
+
+    @BeforeEach
+    void returnDemoUser() {
+        AppUser demoUser = new AppUser(UUID.randomUUID(), "demo@example.com", "Demo User", "fr");
+        given(currentUserService.currentUser(any())).willReturn(demoUser);
+    }
 
     @Test
     void requestWithoutTokenIsRejected() throws Exception {
@@ -58,6 +73,14 @@ class MeControllerTest {
                         .authorities(new KeycloakRealmRoleConverter())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.roles.length()").value(0));
+    }
+
+    @Test
+    void responseIncludesTheUserProfile() throws Exception {
+        mockMvc.perform(get("/api/me").with(keycloakToken("demo-user", "REQUESTER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fullName").value("Demo User"))
+                .andExpect(jsonPath("$.email").value("demo@example.com"));
     }
 
     private static SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor keycloakToken(
