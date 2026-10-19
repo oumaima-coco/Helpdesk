@@ -16,12 +16,14 @@ public class TicketCommentService {
     private final TicketService ticketService;
     private final TicketCommentRepository comments;
     private final AppUserRepository users;
+    private final TicketHistory ticketHistory;
 
     public TicketCommentService(TicketService ticketService, TicketCommentRepository comments,
-                                AppUserRepository users) {
+                                AppUserRepository users, TicketHistory ticketHistory) {
         this.ticketService = ticketService;
         this.comments = comments;
         this.users = users;
+        this.ticketHistory = ticketHistory;
     }
 
     @Transactional(readOnly = true)
@@ -52,7 +54,9 @@ public class TicketCommentService {
                 new TicketComment(ticket, author, request.body().strip(), request.internal()));
 
         if (isRequester && !request.internal() && ticket.getStatus() == TicketStatus.WAITING_FOR_USER) {
+            TicketStatus fromStatus = ticket.getStatus();
             ticket.provideInfo();
+            ticketHistory.record(ticket, author, TicketEventType.INFO_PROVIDED, fromStatus, null);
         }
         comments.flush();
         return CommentResponse.from(comment);

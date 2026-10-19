@@ -48,6 +48,11 @@ public class TicketController {
         return tickets.get(actor(authentication), id);
     }
 
+    @GetMapping("/{id}/history")
+    public List<EventResponse> history(JwtAuthenticationToken authentication, @PathVariable Long id) {
+        return tickets.history(actor(authentication), id);
+    }
+
     @PostMapping("/{id}/take")
     public TicketResponse take(JwtAuthenticationToken authentication, @PathVariable Long id) {
         return tickets.take(actor(authentication), id);

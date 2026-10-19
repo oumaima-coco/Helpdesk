@@ -12,6 +12,7 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +25,14 @@ public class TicketService {
     private final TicketRepository tickets;
     private final CategoryRepository categories;
     private final AppUserRepository users;
+    private final TicketHistory ticketHistory;
 
-    public TicketService(TicketRepository tickets, CategoryRepository categories, AppUserRepository users) {
+    public TicketService(TicketRepository tickets, CategoryRepository categories,
+                         AppUserRepository users, TicketHistory ticketHistory) {
         this.tickets = tickets;
         this.categories = categories;
         this.users = users;
+        this.ticketHistory = ticketHistory;
     }
 
     @Transactional
@@ -38,14 +42,16 @@ public class TicketService {
         }
         Category category = categories.findById(request.categoryId())
                 .orElseThrow(() -> new NotFoundException("Category " + request.categoryId() + " not found"));
-        Ticket ticket = new Ticket(
+        AppUser requester = userOf(actor);
+        Ticket ticket = tickets.save(new Ticket(
                 nextReference(),
                 request.title().strip(),
                 request.description().strip(),
                 Priority.P3,
                 category,
-                actor.user());
-        return toResponse(tickets.save(ticket), actor);
+                requester));
+        ticketHistory.record(ticket, requester, TicketEventType.CREATED, null, null);
+        return saveAndRespond(ticket, actor);
     }
 
     @Transactional(readOnly = true)
@@ -76,6 +82,13 @@ public class TicketService {
         return toResponse(findVisible(actor, id), actor);
     }
 
+    @Transactional(readOnly = true)
+    public List<EventResponse> history(Actor actor, Long id) {
+        Ticket ticket = findVisible(actor, id);
+        boolean showInternalDetails = actor.isStaff() || actor.has(Role.ADMIN);
+        return ticketHistory.historyOf(ticket, showInternalDetails);
+    }
+
     @Transactional
     public TicketResponse take(Actor actor, Long id) {
         Ticket ticket = findVisible(actor, id);
@@ -85,7 +98,10 @@ public class TicketService {
         if (ticket.getStatus() != TicketStatus.NEW) {
             throw new InvalidTicketTransitionException("Only new tickets can be taken");
         }
-        ticket.assignTo(users.getReferenceById(actor.user().getId()));
+        AppUser agent = userOf(actor);
+        TicketStatus fromStatus = ticket.getStatus();
+        ticket.assignTo(agent);
+        ticketHistory.record(ticket, agent, TicketEventType.TAKEN, fromStatus, null);
         return saveAndRespond(ticket, actor);
     }
 
@@ -100,48 +116,51 @@ public class TicketService {
         if (!belongsToTicketTeam(agent, ticket)) {
             throw new BusinessRuleException("The agent must belong to the ticket's team");
         }
+        TicketStatus fromStatus = ticket.getStatus();
         ticket.assignTo(agent);
+        ticketHistory.record(ticket, userOf(actor), TicketEventType.ASSIGNED, fromStatus, agent.getFullName());
         return saveAndRespond(ticket, actor);
     }
 
     @Transactional
     public TicketResponse start(Actor actor, Long id) {
-        return asAssignee(actor, id, Ticket::start);
+        return asAssignee(actor, id, TicketEventType.STARTED, Ticket::start);
     }
 
     @Transactional
     public TicketResponse requestInfo(Actor actor, Long id) {
-        return asAssignee(actor, id, Ticket::requestInfo);
+        return asAssignee(actor, id, TicketEventType.INFO_REQUESTED, Ticket::requestInfo);
     }
 
     @Transactional
     public TicketResponse resolve(Actor actor, Long id, String resolution) {
-        return asAssignee(actor, id, ticket -> ticket.resolve(resolution));
+        return asAssignee(actor, id, TicketEventType.RESOLVED, ticket -> ticket.resolve(resolution));
     }
 
     @Transactional
     public TicketResponse escalate(Actor actor, Long id, String reason) {
-        return asAssignee(actor, id, ticket -> ticket.escalate(reason));
+        return asAssignee(actor, id, TicketEventType.ESCALATED,
+                ticket -> ticket.escalate(reason), Ticket::getEscalationReason);
     }
 
     @Transactional
     public TicketResponse provideInfo(Actor actor, Long id) {
-        return asRequester(actor, id, Ticket::provideInfo);
+        return asRequester(actor, id, TicketEventType.INFO_PROVIDED, Ticket::provideInfo);
     }
 
     @Transactional
     public TicketResponse confirm(Actor actor, Long id) {
-        return asRequester(actor, id, Ticket::confirm);
+        return asRequester(actor, id, TicketEventType.CONFIRMED, Ticket::confirm);
     }
 
     @Transactional
     public TicketResponse reopen(Actor actor, Long id) {
-        return asRequester(actor, id, Ticket::reopen);
+        return asRequester(actor, id, TicketEventType.REOPENED, Ticket::reopen);
     }
 
     @Transactional
     public TicketResponse cancel(Actor actor, Long id) {
-        return asRequester(actor, id, Ticket::cancel);
+        return asRequester(actor, id, TicketEventType.CANCELLED, Ticket::cancel);
     }
 
     Ticket findVisible(Actor actor, Long id) {
@@ -152,27 +171,42 @@ public class TicketService {
         return ticket;
     }
 
-    private TicketResponse asAssignee(Actor actor, Long id, Consumer<Ticket> action) {
+    private TicketResponse asAssignee(Actor actor, Long id, TicketEventType type, Consumer<Ticket> action) {
+        return asAssignee(actor, id, type, action, ticket -> null);
+    }
+
+    private TicketResponse asAssignee(Actor actor, Long id, TicketEventType type,
+                                      Consumer<Ticket> action, Function<Ticket, String> detail) {
         Ticket ticket = findVisible(actor, id);
         if (!ticket.isAssignedTo(actor.user())) {
             throw new AccessDeniedException("Only the assigned agent can do this");
         }
-        action.accept(ticket);
-        return saveAndRespond(ticket, actor);
+        return applyAndRecord(actor, ticket, type, action, detail);
     }
 
-    private TicketResponse asRequester(Actor actor, Long id, Consumer<Ticket> action) {
+    private TicketResponse asRequester(Actor actor, Long id, TicketEventType type, Consumer<Ticket> action) {
         Ticket ticket = findVisible(actor, id);
         if (!ticket.isRequestedBy(actor.user())) {
             throw new AccessDeniedException("Only the requester can do this");
         }
+        return applyAndRecord(actor, ticket, type, action, t -> null);
+    }
+
+    private TicketResponse applyAndRecord(Actor actor, Ticket ticket, TicketEventType type,
+                                          Consumer<Ticket> action, Function<Ticket, String> detail) {
+        TicketStatus fromStatus = ticket.getStatus();
         action.accept(ticket);
+        ticketHistory.record(ticket, userOf(actor), type, fromStatus, detail.apply(ticket));
         return saveAndRespond(ticket, actor);
     }
 
     private TicketResponse saveAndRespond(Ticket ticket, Actor actor) {
         tickets.flush();
         return toResponse(ticket, actor);
+    }
+
+    private AppUser userOf(Actor actor) {
+        return users.getReferenceById(actor.user().getId());
     }
 
     private boolean canSee(Actor actor, Ticket ticket) {
