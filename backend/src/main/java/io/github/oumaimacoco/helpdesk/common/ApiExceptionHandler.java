@@ -20,6 +20,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return problem(HttpStatus.CONFLICT, "Business rule violated", exception.getMessage());
     }
 
+    @ExceptionHandler(InvalidRequestException.class)
+    ProblemDetail handleInvalidRequest(InvalidRequestException exception) {
+        return problem(HttpStatus.BAD_REQUEST, "Invalid request", exception.getMessage());
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     ProblemDetail handleAccessDenied(AccessDeniedException exception) {
         return problem(HttpStatus.FORBIDDEN, "Forbidden", exception.getMessage());
