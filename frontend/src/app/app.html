@@ -1,9 +1,20 @@
 <header>
-  <h1>Helpdesk</h1>
+  <h1>{{ i18n.t('app.title') }}</h1>
+
   @if (currentUser(); as user) {
   <span>{{ user.fullName }} · {{ user.roles.join(', ') }}</span>
   }
-  <button type="button" (click)="auth.logout()">Log out</button>
+
+  <label>
+    {{ i18n.t('header.language') }}
+    <select [value]="i18n.language()" (change)="changeLanguage($event)">
+      @for (language of languages; track language.code) {
+      <option [value]="language.code">{{ language.label }}</option>
+      }
+    </select>
+  </label>
+
+  <button type="button" (click)="auth.logout()">{{ i18n.t('header.logout') }}</button>
 </header>
 
 <main>
