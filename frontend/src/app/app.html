@@ -1,6 +1,11 @@
-<main>
+<header>
   <h1>Helpdesk</h1>
-  <p>IT support tickets, coming soon.</p>
-</main>
+  @if (currentUser(); as user) {
+  <span>{{ user.fullName }} · {{ user.roles.join(', ') }}</span>
+  }
+  <button type="button" (click)="auth.logout()">Log out</button>
+</header>
 
-<router-outlet />
+<main>
+  <router-outlet />
+</main>
