@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Language, TranslationKey, translations } from './translations';
 
 const STORAGE_KEY = 'helpdesk.language';
@@ -10,14 +10,14 @@ export class I18nService {
   private readonly document = inject(DOCUMENT);
 
   readonly language = signal<Language>(this.savedLanguage());
+  readonly direction = computed<'ltr' | 'rtl'>(() => (RIGHT_TO_LEFT.includes(this.language()) ? 'rtl' : 'ltr'));
 
   constructor() {
     effect(() => {
-      const language = this.language();
       const root = this.document.documentElement;
-      root.lang = language;
-      root.dir = RIGHT_TO_LEFT.includes(language) ? 'rtl' : 'ltr';
-      localStorage.setItem(STORAGE_KEY, language);
+      root.lang = this.language();
+      root.dir = this.direction();
+      localStorage.setItem(STORAGE_KEY, this.language());
     });
   }
 

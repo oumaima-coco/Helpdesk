@@ -1,22 +1,27 @@
-<header>
-  <h1>{{ i18n.t('app.title') }}</h1>
+<div class="shell" [dir]="i18n.direction()">
+  <mat-toolbar class="toolbar">
+    <span class="title">{{ i18n.t('app.title') }}</span>
+    <span class="spacer"></span>
 
-  @if (currentUser(); as user) {
-  <span>{{ user.fullName }} · {{ user.roles.join(', ') }}</span>
-  }
+    @if (currentUser(); as user) {
+    <span class="user">{{ user.fullName }}</span>
+    }
 
-  <label>
-    {{ i18n.t('header.language') }}
-    <select [value]="i18n.language()" (change)="changeLanguage($event)">
+    <button mat-button [matMenuTriggerFor]="languageMenu" [attr.aria-label]="i18n.t('header.language')">
+      {{ currentLanguageLabel() }}
+    </button>
+    <mat-menu #languageMenu="matMenu">
       @for (language of languages; track language.code) {
-      <option [value]="language.code">{{ language.label }}</option>
+      <button mat-menu-item [attr.lang]="language.code" (click)="i18n.use(language.code)">
+        {{ language.label }}
+      </button>
       }
-    </select>
-  </label>
+    </mat-menu>
 
-  <button type="button" (click)="auth.logout()">{{ i18n.t('header.logout') }}</button>
-</header>
+    <button mat-button (click)="auth.logout()">{{ i18n.t('header.logout') }}</button>
+  </mat-toolbar>
 
-<main>
-  <router-outlet />
-</main>
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>
