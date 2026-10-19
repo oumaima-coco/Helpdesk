@@ -4,12 +4,23 @@
   color: var(--mat-sys-on-primary);
 }
 
+.toolbar a,
 .toolbar button {
   color: inherit;
 }
 
 .title {
   font-weight: 500;
+  margin-inline-end: 16px;
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+}
+
+.nav .active {
+  background: color-mix(in srgb, currentColor 15%, transparent);
 }
 
 .spacer {
