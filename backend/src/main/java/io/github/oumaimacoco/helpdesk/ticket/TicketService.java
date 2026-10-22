@@ -10,6 +10,7 @@ import io.github.oumaimacoco.helpdesk.user.AppUserRepository;
 import io.github.oumaimacoco.helpdesk.user.Role;
 import java.time.Year;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -221,13 +222,40 @@ public class TicketService {
                 && user.getTeam().getId().equals(ticket.getCategory().getTeam().getId());
     }
 
+    private static List<TicketAction> allowedActions(Ticket ticket, Actor actor) {
+        AppUser user = actor.user();
+        TicketStatus status = ticket.getStatus();
+        List<TicketAction> actions = new ArrayList<>();
+        if (status == TicketStatus.NEW && actor.isStaff() && belongsToTicketTeam(user, ticket)) {
+            actions.add(TicketAction.TAKE);
+        }
+        if (ticket.isAssignedTo(user)) {
+            switch (status) {
+                case ASSIGNED -> actions.addAll(List.of(TicketAction.START, TicketAction.ESCALATE));
+                case IN_PROGRESS -> actions.addAll(
+                        List.of(TicketAction.REQUEST_INFO, TicketAction.RESOLVE, TicketAction.ESCALATE));
+                default -> {
+                }
+            }
+        }
+        if (ticket.isRequestedBy(user)) {
+            switch (status) {
+                case NEW -> actions.add(TicketAction.CANCEL);
+                case RESOLVED -> actions.addAll(List.of(TicketAction.CONFIRM, TicketAction.REOPEN));
+                default -> {
+                }
+            }
+        }
+        return List.copyOf(actions);
+    }
+
     private String nextReference() {
         long number = tickets.nextReferenceNumber();
         return "HD-%d-%04d".formatted(Year.now(TUNIS).getValue(), number);
     }
 
     private static TicketResponse toResponse(Ticket ticket, Actor actor) {
-        return TicketResponse.from(ticket, actor.user().getPreferredLanguage());
+        return TicketResponse.from(ticket, actor.user().getPreferredLanguage(), allowedActions(ticket, actor));
     }
 
     private static NotFoundException ticketNotFound(Long id) {
