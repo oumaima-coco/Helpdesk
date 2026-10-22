@@ -115,6 +115,8 @@
   </section>
   }
 
+  <app-ticket-attachments [ticketId]="t.id" [closed]="t.status === 'CLOSED'" />
+
   <app-ticket-conversation [ticketId]="t.id" [closed]="t.status === 'CLOSED'" (posted)="onCommentPosted()" />
 
   <section class="card">

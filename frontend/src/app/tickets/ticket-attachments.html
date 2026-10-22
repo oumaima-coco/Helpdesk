@@ -1,0 +1,44 @@
+<section class="card">
+  <h2>{{ i18n.t('attachments.title') }}</h2>
+
+  @if (uploading()) {
+  <mat-progress-bar mode="indeterminate" [attr.aria-label]="i18n.t('common.loading')" />
+  }
+
+  @if (attachments.value(); as list) {
+  @if (list.length === 0) {
+  <p class="empty">{{ i18n.t('attachments.empty') }}</p>
+  } @else {
+  <ul class="files">
+    @for (file of list; track file.id) {
+    <li>
+      <button type="button" class="file-name" (click)="download(file)">{{ file.filename }}</button>
+      <span class="meta">
+              {{ size(file.sizeBytes) }} · {{ file.uploaderName }} · {{ i18n.formatDate(file.createdAt) }}
+            </span>
+    </li>
+    }
+  </ul>
+  }
+  }
+
+  @if (canUpload()) {
+  <div class="upload">
+    <input
+      #picker
+      type="file"
+      hidden
+      accept="image/png,image/jpeg,application/pdf,text/plain,.png,.jpg,.jpeg,.pdf,.txt"
+      (change)="upload($event)"
+    />
+    <button mat-stroked-button type="button" [disabled]="uploading()" (click)="picker.click()">
+      {{ i18n.t('attachments.add') }}
+    </button>
+    <span class="hint">{{ i18n.t('attachments.hint') }}</span>
+  </div>
+  }
+
+  @if (error(); as key) {
+  <p class="error" role="alert">{{ i18n.t(key) }}</p>
+  }
+</section>

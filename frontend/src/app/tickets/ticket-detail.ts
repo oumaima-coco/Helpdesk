@@ -12,6 +12,7 @@ import { I18nService } from '../i18n/i18n.service';
 import { TranslationKey } from '../i18n/translations';
 import { errorKey } from './http-errors';
 import { SubmittedErrorStateMatcher } from './submitted-error-matcher';
+import { TicketAttachments } from './ticket-attachments';
 import { TicketConversation } from './ticket-conversation';
 import { Ticket, TicketAction, TicketEvent } from './ticket.model';
 
@@ -57,6 +58,7 @@ const ACTIONS: Record<TicketAction, ActionConfig> = {
     MatFormFieldModule,
     MatInputModule,
     MatProgressBarModule,
+    TicketAttachments,
     TicketConversation,
   ],
   templateUrl: './ticket-detail.html',
