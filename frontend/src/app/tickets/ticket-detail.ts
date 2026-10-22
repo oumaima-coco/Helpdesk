@@ -10,6 +10,9 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { I18nService } from '../i18n/i18n.service';
 import { TranslationKey } from '../i18n/translations';
+import { errorKey } from './http-errors';
+import { SubmittedErrorStateMatcher } from './submitted-error-matcher';
+import { TicketConversation } from './ticket-conversation';
 import { Ticket, TicketAction, TicketEvent } from './ticket.model';
 
 interface ActionConfig {
@@ -45,21 +48,6 @@ const ACTIONS: Record<TicketAction, ActionConfig> = {
   CANCEL: { path: 'cancel', label: 'actions.cancel', primary: false },
 };
 
-function errorKey(status: number): TranslationKey {
-  switch (status) {
-    case 400:
-      return 'errors.invalid';
-    case 403:
-      return 'errors.forbidden';
-    case 404:
-      return 'errors.notFound';
-    case 409:
-      return 'errors.conflict';
-    default:
-      return 'common.error';
-  }
-}
-
 @Component({
   selector: 'app-ticket-detail',
   imports: [
@@ -69,6 +57,7 @@ function errorKey(status: number): TranslationKey {
     MatFormFieldModule,
     MatInputModule,
     MatProgressBarModule,
+    TicketConversation,
   ],
   templateUrl: './ticket-detail.html',
   styleUrl: './ticket-detail.scss',
@@ -79,6 +68,7 @@ export class TicketDetail {
   private readonly route = inject(ActivatedRoute);
 
   protected readonly actions = ACTIONS;
+  protected readonly errorMatcher = new SubmittedErrorStateMatcher();
   protected readonly busy = signal(false);
   protected readonly actionError = signal<TranslationKey | null>(null);
   protected readonly pending = signal<TicketAction | null>(null);
@@ -136,11 +126,7 @@ export class TicketDetail {
   protected submitNote(): void {
     const action = this.pending();
     const text = action ? ACTIONS[action].text : undefined;
-    if (!action || !text) {
-      return;
-    }
-    if (this.noteForm.invalid) {
-      this.noteForm.markAllAsTouched();
+    if (!action || !text || this.noteForm.invalid) {
       return;
     }
     this.send(action, { [text.field]: this.noteForm.controls.note.value.trim() });
@@ -148,6 +134,11 @@ export class TicketDetail {
 
   protected closeNote(): void {
     this.pending.set(null);
+  }
+
+  protected onCommentPosted(): void {
+    this.ticket.reload();
+    this.history.reload();
   }
 
   private send(action: TicketAction, body: object | null): void {

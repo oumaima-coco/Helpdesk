@@ -1,0 +1,95 @@
+:host {
+  display: block;
+}
+
+.card {
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+h2 {
+  margin-block: 0 12px;
+  font: var(--mat-sys-title-medium);
+}
+
+.empty {
+  margin: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.comments {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comments li {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container);
+}
+
+.comments li.internal {
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  border-inline-start: 4px solid var(--mat-sys-secondary);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-block-end: 4px;
+}
+
+.author {
+  font-weight: 500;
+}
+
+time {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.badge {
+  padding-inline: 8px;
+  border-radius: 8px;
+  font: var(--mat-sys-label-small);
+  background: var(--mat-sys-secondary);
+  color: var(--mat-sys-on-secondary);
+}
+
+.text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.compose {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compose-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.compose-actions button {
+  margin-inline-start: auto;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: var(--mat-sys-error);
+}
