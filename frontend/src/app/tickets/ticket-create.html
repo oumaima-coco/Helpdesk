@@ -1,0 +1,42 @@
+<section class="page">
+  <h1>{{ i18n.t('create.title') }}</h1>
+
+  @if (submitting()) {
+  <mat-progress-bar mode="indeterminate" [attr.aria-label]="i18n.t('common.loading')" />
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18n.t('create.titleLabel') }}</mat-label>
+      <input matInput formControlName="title" maxlength="200" autocomplete="off" />
+      <mat-hint>{{ i18n.t('create.titleHint') }}</mat-hint>
+      <mat-error>{{ i18n.t('create.required') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18n.t('create.category') }}</mat-label>
+      <mat-select formControlName="categoryId">
+        @for (category of categories.value() ?? []; track category.id) {
+        <mat-option [value]="category.id">{{ category.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-error>{{ i18n.t('create.required') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18n.t('create.description') }}</mat-label>
+      <textarea matInput formControlName="description" rows="6" maxlength="5000"></textarea>
+      <mat-hint>{{ i18n.t('create.descriptionHint') }}</mat-hint>
+      <mat-error>{{ i18n.t('create.required') }}</mat-error>
+    </mat-form-field>
+
+    @if (errorKey(); as key) {
+    <p class="error" role="alert">{{ i18n.t(key) }}</p>
+    }
+
+    <div class="actions">
+      <a mat-button routerLink="/tickets">{{ i18n.t('common.cancel') }}</a>
+      <button mat-flat-button type="submit" [disabled]="submitting()">{{ i18n.t('create.submit') }}</button>
+    </div>
+  </form>
+</section>

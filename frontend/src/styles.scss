@@ -23,3 +23,16 @@ body {
   margin: 0;
   height: 100%;
 }
+
+.cdk-overlay-container,
+.cdk-overlay-popover {
+  zoom: 0.5;
+}
+
+.cdk-overlay-container .cdk-overlay-popover {
+  zoom: 1;
+}
+
+.cdk-overlay-pane > * {
+  zoom: 2;
+}
