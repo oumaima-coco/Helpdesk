@@ -70,8 +70,9 @@ public class TicketController {
     }
 
     @PostMapping("/{id}/request-info")
-    public TicketResponse requestInfo(JwtAuthenticationToken authentication, @PathVariable Long id) {
-        return tickets.requestInfo(actor(authentication), id);
+    public TicketResponse requestInfo(JwtAuthenticationToken authentication, @PathVariable Long id,
+                                      @Valid @RequestBody RequestInfoRequest request) {
+        return tickets.requestInfo(actor(authentication), id, request.question());
     }
 
     @PostMapping("/{id}/provide-info")

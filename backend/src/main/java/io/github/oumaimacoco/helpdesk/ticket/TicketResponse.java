@@ -1,6 +1,7 @@
 package io.github.oumaimacoco.helpdesk.ticket;
 
 import java.time.Instant;
+import java.util.List;
 
 public record TicketResponse(
         Long id,
@@ -16,9 +17,10 @@ public record TicketResponse(
         String resolution,
         String escalationReason,
         Instant createdAt,
-        Instant updatedAt) {
+        Instant updatedAt,
+        List<TicketAction> actions) {
 
-    static TicketResponse from(Ticket ticket, String language) {
+    static TicketResponse from(Ticket ticket, String language, List<TicketAction> actions) {
         return new TicketResponse(
                 ticket.getId(),
                 ticket.getReference(),
@@ -33,6 +35,7 @@ public record TicketResponse(
                 ticket.getResolution(),
                 ticket.getEscalationReason(),
                 ticket.getCreatedAt(),
-                ticket.getUpdatedAt());
+                ticket.getUpdatedAt(),
+                actions);
     }
 }

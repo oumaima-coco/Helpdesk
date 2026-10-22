@@ -1,5 +1,6 @@
 package io.github.oumaimacoco.helpdesk.user;
 
+import io.github.oumaimacoco.helpdesk.common.InvalidRequestException;
 import io.github.oumaimacoco.helpdesk.team.Team;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,11 +11,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @Table(name = "app_user")
 public class AppUser {
+
+    private static final Set<String> SUPPORTED_LANGUAGES = Set.of("fr", "ar", "en");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +53,13 @@ public class AppUser {
     public void updateProfile(String email, String fullName) {
         this.email = email;
         this.fullName = fullName;
+    }
+
+    public void changeLanguage(String language) {
+        if (!SUPPORTED_LANGUAGES.contains(language)) {
+            throw new InvalidRequestException("Unsupported language: " + language);
+        }
+        this.preferredLanguage = language;
     }
 
     public void joinTeam(Team team) {

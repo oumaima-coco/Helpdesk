@@ -1,0 +1,74 @@
+:host {
+  display: block;
+}
+
+.card {
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+h2 {
+  margin-block: 0 12px;
+  font: var(--mat-sys-title-medium);
+}
+
+.empty {
+  margin: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.files {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.files li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding-block: 10px;
+  border-block-end: 1px solid var(--mat-sys-outline-variant);
+}
+
+.files li:last-child {
+  border-block-end: none;
+}
+
+.file-name {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-body-large);
+  font-weight: 500;
+  text-decoration: underline;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.hint {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.error {
+  margin: 12px 0 0;
+  color: var(--mat-sys-error);
+}

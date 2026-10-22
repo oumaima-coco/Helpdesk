@@ -1,0 +1,40 @@
+.toolbar {
+  gap: 8px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+}
+
+.toolbar a,
+.toolbar button {
+  color: inherit;
+}
+
+.title {
+  font-weight: 500;
+  margin-inline-end: 16px;
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+}
+
+.nav .active {
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.user {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.content {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-block: 24px;
+  padding-inline: 16px;
+}

@@ -1,0 +1,50 @@
+<section class="card">
+  <h2>{{ i18n.t('comments.title') }}</h2>
+
+  @if (comments.value(); as list) {
+  @if (list.length === 0) {
+  <p class="empty">{{ i18n.t('comments.empty') }}</p>
+  } @else {
+  <ol class="comments">
+    @for (comment of list; track comment.id) {
+    <li [class.internal]="comment.internal">
+      <div class="meta">
+        <span class="author">{{ comment.authorName }}</span>
+        <time>{{ i18n.formatDate(comment.createdAt) }}</time>
+        @if (comment.internal) {
+        <span class="badge">{{ i18n.t('comments.internalBadge') }}</span>
+        }
+      </div>
+      <p class="text">{{ comment.body }}</p>
+    </li>
+    }
+  </ol>
+  }
+  }
+
+  @if (canWrite()) {
+  <form class="compose" [formGroup]="form" (ngSubmit)="send()">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" hideRequiredMarker>
+      <mat-label>{{ i18n.t('comments.placeholder') }}</mat-label>
+      <textarea
+        matInput
+        formControlName="body"
+        rows="3"
+        maxlength="5000"
+        [errorStateMatcher]="errorMatcher"
+      ></textarea>
+      <mat-error>{{ i18n.t('create.required') }}</mat-error>
+    </mat-form-field>
+    <div class="compose-actions">
+      @if (currentUser.isStaff()) {
+      <mat-checkbox formControlName="internal">{{ i18n.t('comments.internal') }}</mat-checkbox>
+      }
+      <button mat-flat-button type="submit" [disabled]="sending()">{{ i18n.t('comments.send') }}</button>
+    </div>
+  </form>
+  }
+
+  @if (error(); as key) {
+  <p class="error" role="alert">{{ i18n.t(key) }}</p>
+  }
+</section>

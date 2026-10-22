@@ -17,7 +17,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     @Query("""
             SELECT t FROM Ticket t
-            WHERE t.category.team = :team OR t.assignee = :agent
+            WHERE t.category.team = :team OR t.assignee = :agent OR t.requester = :agent
             ORDER BY t.createdAt DESC
             """)
     List<Ticket> findVisibleToAgent(Team team, AppUser agent);

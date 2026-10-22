@@ -1,6 +1,35 @@
-<main>
-  <h1>Helpdesk</h1>
-  <p>IT support tickets, coming soon.</p>
-</main>
+<div class="shell" [dir]="i18n.direction()">
+  <mat-toolbar class="toolbar">
+    <span class="title">{{ i18n.t('app.title') }}</span>
 
-<router-outlet />
+    <nav class="nav">
+      <a mat-button routerLink="/tickets" routerLinkActive="active">{{ i18n.t('nav.tickets') }}</a>
+      @if (currentUser.canCreateTickets()) {
+      <a mat-button routerLink="/tickets/new" routerLinkActive="active">{{ i18n.t('nav.newTicket') }}</a>
+      }
+    </nav>
+
+    <span class="spacer"></span>
+
+    @if (currentUser.user(); as user) {
+    <span class="user">{{ user.fullName }}</span>
+    }
+
+    <button mat-button [matMenuTriggerFor]="languageMenu" [attr.aria-label]="i18n.t('header.language')">
+      {{ currentLanguageLabel() }}
+    </button>
+    <mat-menu #languageMenu="matMenu">
+      @for (language of languages; track language.code) {
+      <button mat-menu-item [attr.lang]="language.code" (click)="i18n.use(language.code)">
+        {{ language.label }}
+      </button>
+      }
+    </mat-menu>
+
+    <button mat-button (click)="auth.logout()">{{ i18n.t('header.logout') }}</button>
+  </mat-toolbar>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>
