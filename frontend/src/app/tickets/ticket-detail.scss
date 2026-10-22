@@ -1,0 +1,125 @@
+.back {
+  margin-block-end: 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block-end: 16px;
+}
+
+.reference {
+  color: var(--mat-sys-on-surface-variant);
+  font-weight: 500;
+}
+
+h1 {
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin-block: 0 8px;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 0 0 24px;
+}
+
+.facts dt {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.block {
+  padding: 16px;
+  margin-block-end: 16px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.highlight {
+  background: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+}
+
+.text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.history li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding-block: 8px;
+  border-block-end: 1px solid var(--mat-sys-outline-variant);
+}
+
+.history li:last-child {
+  border-block-end: none;
+}
+
+.event {
+  font-weight: 500;
+}
+
+.actor,
+.when {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.detail {
+  flex-basis: 100%;
+}
+
+.message {
+  padding-block: 24px;
+}
+
+.error {
+  color: var(--mat-sys-error);
+}
+
+.status {
+  display: inline-block;
+  padding-block: 2px;
+  padding-inline: 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+}
+
+.status[data-status='NEW'],
+.status[data-status='WAITING_FOR_USER'] {
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.status[data-status='RESOLVED'] {
+  background: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+}
+
+.status[data-status='CLOSED'] {
+  opacity: 0.7;
+}

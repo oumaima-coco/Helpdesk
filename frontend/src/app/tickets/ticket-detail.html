@@ -1,0 +1,81 @@
+<section class="page">
+  <a mat-button routerLink="/tickets" class="back">{{ i18n.t('common.back') }}</a>
+
+  @if (ticket.isLoading()) {
+  <mat-progress-bar mode="indeterminate" [attr.aria-label]="i18n.t('common.loading')" />
+  }
+
+  @if (ticket.error()) {
+  <p class="message error" role="alert">
+    {{ notFound() ? i18n.t('errors.notFound') : i18n.t('common.error') }}
+  </p>
+  }
+
+  @if (ticket.value(); as t) {
+  <header class="header">
+    <span class="reference">{{ t.reference }}</span>
+    <h1>{{ t.title }}</h1>
+    <span class="status" [attr.data-status]="t.status">{{ i18n.status(t.status) }}</span>
+  </header>
+
+  <dl class="facts">
+    <div>
+      <dt>{{ i18n.t('detail.requester') }}</dt>
+      <dd>{{ t.requesterName }}</dd>
+    </div>
+    <div>
+      <dt>{{ i18n.t('detail.assignee') }}</dt>
+      <dd>{{ t.assigneeName ?? i18n.t('detail.unassigned') }}</dd>
+    </div>
+    <div>
+      <dt>{{ i18n.t('tickets.column.category') }}</dt>
+      <dd>{{ t.categoryName }}</dd>
+    </div>
+    <div>
+      <dt>{{ i18n.t('tickets.column.priority') }}</dt>
+      <dd>{{ i18n.priority(t.priority) }}</dd>
+    </div>
+    <div>
+      <dt>{{ i18n.t('detail.created') }}</dt>
+      <dd>{{ i18n.formatDate(t.createdAt) }}</dd>
+    </div>
+  </dl>
+
+  <section class="block">
+    <h2>{{ i18n.t('detail.description') }}</h2>
+    <p class="text">{{ t.description }}</p>
+  </section>
+
+  @if (t.resolution) {
+  <section class="block highlight">
+    <h2>{{ i18n.t('detail.resolution') }}</h2>
+    <p class="text">{{ t.resolution }}</p>
+  </section>
+  }
+
+  @if (t.escalationReason) {
+  <section class="block">
+    <h2>{{ i18n.t('detail.escalationReason') }}</h2>
+    <p class="text">{{ t.escalationReason }}</p>
+  </section>
+  }
+
+  <section class="block">
+    <h2>{{ i18n.t('history.title') }}</h2>
+    <ol class="history">
+      @for (event of history.value() ?? []; track event.id) {
+      <li>
+        <span class="event">{{ i18n.event(event.type) }}</span>
+        @if (event.actorName) {
+        <span class="actor">{{ event.actorName }}</span>
+        }
+        <time class="when">{{ i18n.formatDate(event.createdAt) }}</time>
+        @if (event.detail) {
+        <p class="text detail">{{ event.detail }}</p>
+        }
+      </li>
+      }
+    </ol>
+  </section>
+  }
+</section>

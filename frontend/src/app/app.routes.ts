@@ -7,6 +7,10 @@ export const routes: Routes = [
     loadComponent: () => import('./tickets/ticket-create').then((module) => module.TicketCreate),
   },
   {
+    path: 'tickets/:id',
+    loadComponent: () => import('./tickets/ticket-detail').then((module) => module.TicketDetail),
+  },
+  {
     path: 'tickets',
     loadComponent: () => import('./tickets/ticket-list').then((module) => module.TicketList),
   },
