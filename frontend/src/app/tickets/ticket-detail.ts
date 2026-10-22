@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -16,13 +16,18 @@ interface ActionConfig {
   path: string;
   label: TranslationKey;
   primary: boolean;
-  text?: { field: 'resolution' | 'reason'; prompt: TranslationKey; maxLength: number };
+  text?: { field: 'resolution' | 'reason' | 'question'; prompt: TranslationKey; maxLength: number };
 }
 
 const ACTIONS: Record<TicketAction, ActionConfig> = {
   TAKE: { path: 'take', label: 'actions.take', primary: true },
   START: { path: 'start', label: 'actions.start', primary: true },
-  REQUEST_INFO: { path: 'request-info', label: 'actions.requestInfo', primary: false },
+  REQUEST_INFO: {
+    path: 'request-info',
+    label: 'actions.requestInfo',
+    primary: false,
+    text: { field: 'question', prompt: 'actions.requestInfoPrompt', maxLength: 5000 },
+  },
   RESOLVE: {
     path: 'resolve',
     label: 'actions.resolve',
@@ -77,9 +82,11 @@ export class TicketDetail {
   protected readonly busy = signal(false);
   protected readonly actionError = signal<TranslationKey | null>(null);
   protected readonly pending = signal<TicketAction | null>(null);
-  protected readonly note = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required, Validators.pattern(/\S/)],
+  protected readonly noteForm = new FormGroup({
+    note: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.pattern(/\S/)],
+    }),
   });
 
   protected readonly id = toSignal(this.route.paramMap.pipe(map((params) => params.get('id'))));
@@ -107,10 +114,19 @@ export class TicketDetail {
     return error instanceof HttpErrorResponse && error.status === 404;
   });
 
+  protected readonly openQuestion = computed(() => {
+    if (this.ticket.value()?.status !== 'WAITING_FOR_USER') {
+      return null;
+    }
+    const events = [...(this.history.value() ?? [])].reverse();
+    const request = events.find((event) => event.type === 'INFO_REQUESTED');
+    return request?.detail ? request : null;
+  });
+
   protected run(action: TicketAction): void {
     this.actionError.set(null);
     if (ACTIONS[action].text) {
-      this.note.reset();
+      this.noteForm.reset();
       this.pending.set(action);
       return;
     }
@@ -123,11 +139,11 @@ export class TicketDetail {
     if (!action || !text) {
       return;
     }
-    if (this.note.invalid) {
-      this.note.markAsTouched();
+    if (this.noteForm.invalid) {
+      this.noteForm.markAllAsTouched();
       return;
     }
-    this.send(action, { [text.field]: this.note.value.trim() });
+    this.send(action, { [text.field]: this.noteForm.controls.note.value.trim() });
   }
 
   protected closeNote(): void {

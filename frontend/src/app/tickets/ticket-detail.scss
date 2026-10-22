@@ -24,6 +24,19 @@ h2 {
   margin-block: 0 8px;
 }
 
+.question {
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  border-inline-start: 4px solid var(--mat-sys-primary);
+}
+
+.question .meta,
+.question .hint {
+  margin-block: 8px 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

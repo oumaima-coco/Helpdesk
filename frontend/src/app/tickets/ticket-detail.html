@@ -18,6 +18,15 @@
     <span class="status" [attr.data-status]="t.status">{{ i18n.status(t.status) }}</span>
   </header>
 
+  @if (openQuestion(); as question) {
+  <section class="block question" role="status">
+    <h2>{{ i18n.t('detail.questionTitle') }}</h2>
+    <p class="text">{{ question.detail }}</p>
+    <p class="meta">{{ question.actorName }} · {{ i18n.formatDate(question.createdAt) }}</p>
+    <p class="hint">{{ i18n.t('detail.questionHint') }}</p>
+  </section>
+  }
+
   @if (t.actions.length > 0) {
   <div class="actions">
     @for (action of t.actions; track action) {
@@ -36,10 +45,10 @@
 
   @if (pending(); as action) {
   @if (actions[action].text; as text) {
-  <form class="block note" (ngSubmit)="submitNote()">
+  <form class="block note" [formGroup]="noteForm" (ngSubmit)="submitNote()">
     <mat-form-field appearance="outline">
       <mat-label>{{ i18n.t(text.prompt) }}</mat-label>
-      <textarea matInput [formControl]="note" rows="4" [maxlength]="text.maxLength"></textarea>
+      <textarea matInput formControlName="note" rows="4" [maxlength]="text.maxLength"></textarea>
       <mat-error>{{ i18n.t('create.required') }}</mat-error>
     </mat-form-field>
     <div class="note-actions">
