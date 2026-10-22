@@ -1,7 +1,7 @@
 <section class="page">
   <a mat-button routerLink="/tickets" class="back">{{ i18n.t('common.back') }}</a>
 
-  @if (ticket.isLoading()) {
+  @if (ticket.isLoading() || busy()) {
   <mat-progress-bar mode="indeterminate" [attr.aria-label]="i18n.t('common.loading')" />
   }
 
@@ -17,6 +17,42 @@
     <h1>{{ t.title }}</h1>
     <span class="status" [attr.data-status]="t.status">{{ i18n.status(t.status) }}</span>
   </header>
+
+  @if (t.actions.length > 0) {
+  <div class="actions">
+    @for (action of t.actions; track action) {
+    @if (actions[action].primary) {
+    <button mat-flat-button type="button" [disabled]="busy()" (click)="run(action)">
+      {{ i18n.t(actions[action].label) }}
+    </button>
+    } @else {
+    <button mat-stroked-button type="button" [disabled]="busy()" (click)="run(action)">
+      {{ i18n.t(actions[action].label) }}
+    </button>
+    }
+    }
+  </div>
+  }
+
+  @if (pending(); as action) {
+  @if (actions[action].text; as text) {
+  <form class="block note" (ngSubmit)="submitNote()">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ i18n.t(text.prompt) }}</mat-label>
+      <textarea matInput [formControl]="note" rows="4" [maxlength]="text.maxLength"></textarea>
+      <mat-error>{{ i18n.t('create.required') }}</mat-error>
+    </mat-form-field>
+    <div class="note-actions">
+      <button mat-button type="button" (click)="closeNote()">{{ i18n.t('common.cancel') }}</button>
+      <button mat-flat-button type="submit" [disabled]="busy()">{{ i18n.t(actions[action].label) }}</button>
+    </div>
+  </form>
+  }
+  }
+
+  @if (actionError(); as key) {
+  <p class="error" role="alert">{{ i18n.t(key) }}</p>
+  }
 
   <dl class="facts">
     <div>

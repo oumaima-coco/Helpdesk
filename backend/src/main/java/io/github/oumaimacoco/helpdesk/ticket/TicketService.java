@@ -26,13 +26,15 @@ public class TicketService {
     private final TicketRepository tickets;
     private final CategoryRepository categories;
     private final AppUserRepository users;
+    private final TicketCommentRepository comments;
     private final TicketHistory ticketHistory;
 
-    public TicketService(TicketRepository tickets, CategoryRepository categories,
-                         AppUserRepository users, TicketHistory ticketHistory) {
+    public TicketService(TicketRepository tickets, CategoryRepository categories, AppUserRepository users,
+                         TicketCommentRepository comments, TicketHistory ticketHistory) {
         this.tickets = tickets;
         this.categories = categories;
         this.users = users;
+        this.comments = comments;
         this.ticketHistory = ticketHistory;
     }
 
@@ -129,8 +131,12 @@ public class TicketService {
     }
 
     @Transactional
-    public TicketResponse requestInfo(Actor actor, Long id) {
-        return asAssignee(actor, id, TicketEventType.INFO_REQUESTED, Ticket::requestInfo);
+    public TicketResponse requestInfo(Actor actor, Long id, String question) {
+        String text = question.strip();
+        return asAssignee(actor, id, TicketEventType.INFO_REQUESTED, ticket -> {
+            ticket.requestInfo();
+            comments.save(new TicketComment(ticket, userOf(actor), text, false));
+        }, ticket -> text);
     }
 
     @Transactional

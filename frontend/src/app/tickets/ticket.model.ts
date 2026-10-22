@@ -2,6 +2,16 @@ export type TicketStatus = 'NEW' | 'ASSIGNED' | 'IN_PROGRESS' | 'WAITING_FOR_USE
 
 export type Priority = 'P1' | 'P2' | 'P3' | 'P4';
 
+export type TicketAction =
+  | 'TAKE'
+  | 'START'
+  | 'REQUEST_INFO'
+  | 'RESOLVE'
+  | 'ESCALATE'
+  | 'CONFIRM'
+  | 'REOPEN'
+  | 'CANCEL';
+
 export type TicketEventType =
   | 'CREATED'
   | 'TAKEN'
@@ -30,6 +40,7 @@ export interface Ticket {
   escalationReason: string | null;
   createdAt: string;
   updatedAt: string;
+  actions: TicketAction[];
 }
 
 export interface Category {

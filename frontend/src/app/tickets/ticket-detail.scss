@@ -24,6 +24,24 @@ h2 {
   margin-block: 0 8px;
 }
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-end: 16px;
+}
+
+.note {
+  display: flex;
+  flex-direction: column;
+}
+
+.note-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

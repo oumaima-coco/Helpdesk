@@ -133,7 +133,16 @@ class TicketHistoryTest {
         long id = createTicket();
         action(id, "take", agent, Role.AGENT);
         action(id, "start", agent, Role.AGENT);
-        action(id, "request-info", agent, Role.AGENT);
+        mockMvc.perform(post("/api/tickets/" + id + "/request-info")
+                        .with(as(agent, Role.AGENT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"question\": \"Which printer is it?\"}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get(historyUrl(id)).with(as(requester, Role.REQUESTER)))
+                .andExpect(jsonPath("$[3].type").value("INFO_REQUESTED"))
+                .andExpect(jsonPath("$[3].detail").value("Which printer is it?"));
+
         mockMvc.perform(post("/api/tickets/" + id + "/comments")
                         .with(as(requester, Role.REQUESTER))
                         .contentType(MediaType.APPLICATION_JSON)

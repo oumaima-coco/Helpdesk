@@ -128,6 +128,42 @@ class TicketActionsTest {
                 .andExpect(jsonPath("$.actions", empty()));
     }
 
+    @Test
+    void requestingInformationPostsTheQuestionAsAVisibleComment() throws Exception {
+        long id = createTicket();
+        action(id, "take", agent, Role.AGENT);
+        action(id, "start", agent, Role.AGENT);
+
+        mockMvc.perform(post("/api/tickets/" + id + "/request-info")
+                        .with(as(agent, Role.AGENT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"question\": \"Which error message do you see?\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("WAITING_FOR_USER"));
+
+        mockMvc.perform(get(ticketUrl(id) + "/comments").with(as(requester, Role.REQUESTER)))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].body").value("Which error message do you see?"))
+                .andExpect(jsonPath("$[0].internal").value(false))
+                .andExpect(jsonPath("$[0].authorName").value(agent.getFullName()));
+    }
+
+    @Test
+    void requestingInformationWithoutAQuestionIsRejected() throws Exception {
+        long id = createTicket();
+        action(id, "take", agent, Role.AGENT);
+        action(id, "start", agent, Role.AGENT);
+
+        mockMvc.perform(post("/api/tickets/" + id + "/request-info")
+                        .with(as(agent, Role.AGENT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"question\": \"   \"}"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get(ticketUrl(id)).with(as(agent, Role.AGENT)))
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+    }
+
     private long createTicket() throws Exception {
         String response = mockMvc.perform(post("/api/tickets")
                         .with(as(requester, Role.REQUESTER))
