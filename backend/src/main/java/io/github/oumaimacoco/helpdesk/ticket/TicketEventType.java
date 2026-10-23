@@ -11,5 +11,7 @@ public enum TicketEventType {
     CONFIRMED,
     REOPENED,
     ESCALATED,
-    CANCELLED
+    CANCELLED,
+    OVERDUE,
+    PICKUP_OVERDUE
 }

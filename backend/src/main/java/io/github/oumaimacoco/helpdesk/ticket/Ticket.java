@@ -64,6 +64,9 @@ public class Ticket {
     @Column(name = "pickup_due_at")
     private Instant pickupDueAt;
 
+    @Column(name = "pickup_alerted_at")
+    private Instant pickupAlertedAt;
+
     @Column(name = "resolution_due_at")
     private Instant resolutionDueAt;
 
@@ -141,10 +144,21 @@ public class Ticket {
         this.status = TicketStatus.CLOSED;
     }
 
+    void returnToQueue() {
+        requireStatus("return to the queue", TicketStatus.ASSIGNED, TicketStatus.IN_PROGRESS);
+        this.assignee = null;
+        this.status = TicketStatus.NEW;
+    }
+
     void scheduleDeadlines(Instant pickupDueAt, Instant resolutionDueAt, Duration pausedRemaining) {
         this.pickupDueAt = pickupDueAt;
+        this.pickupAlertedAt = null;
         this.resolutionDueAt = resolutionDueAt;
         this.pausedRemainingSeconds = pausedRemaining == null ? null : pausedRemaining.toSeconds();
+    }
+
+    void markPickupAlerted(Instant moment) {
+        this.pickupAlertedAt = moment;
     }
 
     public boolean isRequestedBy(AppUser user) {
@@ -215,6 +229,10 @@ public class Ticket {
 
     public Instant getPickupDueAt() {
         return pickupDueAt;
+    }
+
+    public Instant getPickupAlertedAt() {
+        return pickupAlertedAt;
     }
 
     public Instant getResolutionDueAt() {

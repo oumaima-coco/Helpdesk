@@ -2,6 +2,8 @@ package io.github.oumaimacoco.helpdesk.ticket;
 
 import io.github.oumaimacoco.helpdesk.team.Team;
 import io.github.oumaimacoco.helpdesk.user.AppUser;
+import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +25,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findVisibleToAgent(Team team, AppUser agent);
 
     List<Ticket> findAllByOrderByCreatedAtDesc();
+
+    List<Ticket> findByStatusInAndResolutionDueAtBefore(Collection<TicketStatus> statuses, Instant moment);
+
+    List<Ticket> findByStatusAndPickupDueAtBeforeAndPickupAlertedAtIsNull(TicketStatus status, Instant moment);
 }
