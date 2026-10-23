@@ -14,6 +14,7 @@ import { errorKey } from './http-errors';
 import { SubmittedErrorStateMatcher } from './submitted-error-matcher';
 import { TicketAttachments } from './ticket-attachments';
 import { TicketConversation } from './ticket-conversation';
+import { TicketDeadline } from './ticket-deadline';
 import { Ticket, TicketAction, TicketEvent } from './ticket.model';
 
 interface ActionConfig {
@@ -60,6 +61,7 @@ const ACTIONS: Record<TicketAction, ActionConfig> = {
     MatProgressBarModule,
     TicketAttachments,
     TicketConversation,
+    TicketDeadline,
   ],
   templateUrl: './ticket-detail.html',
   styleUrl: './ticket-detail.scss',

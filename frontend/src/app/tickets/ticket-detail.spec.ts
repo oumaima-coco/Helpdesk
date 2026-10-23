@@ -21,6 +21,9 @@ const BASE_TICKET: Ticket = {
   escalationReason: null,
   createdAt: '2026-10-22T10:00:00Z',
   updatedAt: '2026-10-22T10:00:00Z',
+  pickupDueAt: null,
+  resolutionDueAt: null,
+  pausedRemainingSeconds: null,
   actions: [],
 };
 

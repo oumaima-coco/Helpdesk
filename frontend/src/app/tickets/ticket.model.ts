@@ -40,6 +40,9 @@ export interface Ticket {
   escalationReason: string | null;
   createdAt: string;
   updatedAt: string;
+  pickupDueAt: string | null;
+  resolutionDueAt: string | null;
+  pausedRemainingSeconds: number | null;
   actions: TicketAction[];
 }
 

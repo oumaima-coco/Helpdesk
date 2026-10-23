@@ -40,6 +40,12 @@
         <dt>{{ i18n.t('detail.created') }}</dt>
         <dd>{{ i18n.formatDate(t.createdAt) }}</dd>
       </div>
+      @if (t.pickupDueAt || t.resolutionDueAt || t.pausedRemainingSeconds !== null) {
+      <div>
+        <dt>{{ i18n.t('deadline.title') }}</dt>
+        <dd><app-ticket-deadline [ticket]="t" /></dd>
+      </div>
+      }
     </dl>
 
     @if (t.actions.length > 0) {

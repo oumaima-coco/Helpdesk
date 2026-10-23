@@ -51,6 +51,11 @@
       <td mat-cell *matCellDef="let ticket">{{ ticket.categoryName }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="due">
+      <th mat-header-cell *matHeaderCellDef>{{ i18n.t('tickets.column.due') }}</th>
+      <td mat-cell *matCellDef="let ticket"><app-ticket-deadline [ticket]="ticket" /></td>
+    </ng-container>
+
     <ng-container matColumnDef="updated">
       <th mat-header-cell *matHeaderCellDef>{{ i18n.t('tickets.column.updated') }}</th>
       <td mat-cell *matCellDef="let ticket">{{ i18n.formatDate(ticket.updatedAt) }}</td>
