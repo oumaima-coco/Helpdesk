@@ -40,6 +40,9 @@ public class AppUser {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Column(name = "team_lead", nullable = false)
+    private boolean teamLead;
+
     protected AppUser() {
     }
 
@@ -66,6 +69,10 @@ public class AppUser {
         this.team = team;
     }
 
+    public void syncTeamLead(boolean teamLead) {
+        this.teamLead = teamLead;
+    }
+
     public Long getId() {
         return id;
     }
@@ -88,5 +95,9 @@ public class AppUser {
 
     public Team getTeam() {
         return team;
+    }
+
+    public boolean isTeamLead() {
+        return teamLead;
     }
 }

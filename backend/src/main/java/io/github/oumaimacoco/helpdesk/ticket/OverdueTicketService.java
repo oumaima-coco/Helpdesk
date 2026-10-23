@@ -1,5 +1,6 @@
 package io.github.oumaimacoco.helpdesk.ticket;
 
+import io.github.oumaimacoco.helpdesk.user.AppUser;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -29,10 +30,11 @@ public class OverdueTicketService {
         List<Ticket> overdue = tickets.findByStatusInAndResolutionDueAtBefore(RUNNING, clock.instant());
         for (Ticket ticket : overdue) {
             TicketStatus fromStatus = ticket.getStatus();
-            String previousAgent = ticket.getAssignee() == null ? null : ticket.getAssignee().getFullName();
+            AppUser previousAgent = ticket.getAssignee();
+            String previousAgentName = previousAgent == null ? null : previousAgent.getFullName();
             ticket.returnToQueue();
             deadlines.update(ticket, fromStatus);
-            ticketHistory.record(ticket, null, TicketEventType.OVERDUE, fromStatus, previousAgent);
+            ticketHistory.record(ticket, null, TicketEventType.OVERDUE, fromStatus, previousAgentName, previousAgent);
         }
         return overdue.size();
     }

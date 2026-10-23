@@ -45,6 +45,7 @@ public class CurrentUserService {
                 .map(authority -> authority.substring(ROLE_PREFIX.length()))
                 .flatMap(name -> Arrays.stream(Role.values()).filter(role -> role.name().equals(name)))
                 .collect(Collectors.toSet());
+        user.syncTeamLead(roles.contains(Role.TEAM_LEAD));
         return new Actor(user, roles);
     }
 }
