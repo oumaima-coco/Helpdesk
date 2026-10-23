@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
@@ -59,6 +60,15 @@ public class Ticket {
 
     @Column(name = "escalation_reason", columnDefinition = "text")
     private String escalationReason;
+
+    @Column(name = "pickup_due_at")
+    private Instant pickupDueAt;
+
+    @Column(name = "resolution_due_at")
+    private Instant resolutionDueAt;
+
+    @Column(name = "paused_remaining_seconds")
+    private Long pausedRemainingSeconds;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -131,6 +141,12 @@ public class Ticket {
         this.status = TicketStatus.CLOSED;
     }
 
+    void scheduleDeadlines(Instant pickupDueAt, Instant resolutionDueAt, Duration pausedRemaining) {
+        this.pickupDueAt = pickupDueAt;
+        this.resolutionDueAt = resolutionDueAt;
+        this.pausedRemainingSeconds = pausedRemaining == null ? null : pausedRemaining.toSeconds();
+    }
+
     public boolean isRequestedBy(AppUser user) {
         return user != null && requester.getId().equals(user.getId());
     }
@@ -195,6 +211,18 @@ public class Ticket {
 
     public String getEscalationReason() {
         return escalationReason;
+    }
+
+    public Instant getPickupDueAt() {
+        return pickupDueAt;
+    }
+
+    public Instant getResolutionDueAt() {
+        return resolutionDueAt;
+    }
+
+    public Duration getPausedRemaining() {
+        return pausedRemainingSeconds == null ? null : Duration.ofSeconds(pausedRemainingSeconds);
     }
 
     public Instant getCreatedAt() {

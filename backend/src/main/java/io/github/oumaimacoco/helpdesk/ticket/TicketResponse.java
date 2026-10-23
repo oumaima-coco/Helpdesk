@@ -18,6 +18,9 @@ public record TicketResponse(
         String escalationReason,
         Instant createdAt,
         Instant updatedAt,
+        Instant pickupDueAt,
+        Instant resolutionDueAt,
+        Long pausedRemainingSeconds,
         List<TicketAction> actions) {
 
     static TicketResponse from(Ticket ticket, String language, List<TicketAction> actions) {
@@ -36,6 +39,9 @@ public record TicketResponse(
                 ticket.getEscalationReason(),
                 ticket.getCreatedAt(),
                 ticket.getUpdatedAt(),
+                ticket.getPickupDueAt(),
+                ticket.getResolutionDueAt(),
+                ticket.getPausedRemaining() == null ? null : ticket.getPausedRemaining().toSeconds(),
                 actions);
     }
 }

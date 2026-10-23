@@ -28,14 +28,17 @@ public class TicketService {
     private final AppUserRepository users;
     private final TicketCommentRepository comments;
     private final TicketHistory ticketHistory;
+    private final TicketDeadlines deadlines;
 
     public TicketService(TicketRepository tickets, CategoryRepository categories, AppUserRepository users,
-                         TicketCommentRepository comments, TicketHistory ticketHistory) {
+                         TicketCommentRepository comments, TicketHistory ticketHistory,
+                         TicketDeadlines deadlines) {
         this.tickets = tickets;
         this.categories = categories;
         this.users = users;
         this.comments = comments;
         this.ticketHistory = ticketHistory;
+        this.deadlines = deadlines;
     }
 
     @Transactional
@@ -53,6 +56,7 @@ public class TicketService {
                 Priority.P3,
                 category,
                 requester));
+        deadlines.update(ticket, null);
         ticketHistory.record(ticket, requester, TicketEventType.CREATED, null, null);
         return saveAndRespond(ticket, actor);
     }
@@ -104,6 +108,7 @@ public class TicketService {
         AppUser agent = userOf(actor);
         TicketStatus fromStatus = ticket.getStatus();
         ticket.assignTo(agent);
+        deadlines.update(ticket, fromStatus);
         ticketHistory.record(ticket, agent, TicketEventType.TAKEN, fromStatus, null);
         return saveAndRespond(ticket, actor);
     }
@@ -121,6 +126,7 @@ public class TicketService {
         }
         TicketStatus fromStatus = ticket.getStatus();
         ticket.assignTo(agent);
+        deadlines.update(ticket, fromStatus);
         ticketHistory.record(ticket, userOf(actor), TicketEventType.ASSIGNED, fromStatus, agent.getFullName());
         return saveAndRespond(ticket, actor);
     }
@@ -203,6 +209,7 @@ public class TicketService {
                                           Consumer<Ticket> action, Function<Ticket, String> detail) {
         TicketStatus fromStatus = ticket.getStatus();
         action.accept(ticket);
+        deadlines.update(ticket, fromStatus);
         ticketHistory.record(ticket, userOf(actor), type, fromStatus, detail.apply(ticket));
         return saveAndRespond(ticket, actor);
     }
