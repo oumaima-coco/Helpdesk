@@ -23,7 +23,9 @@ export type TicketEventType =
   | 'CONFIRMED'
   | 'REOPENED'
   | 'ESCALATED'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  | 'OVERDUE'
+  | 'PICKUP_OVERDUE';
 
 export interface Ticket {
   id: number;
