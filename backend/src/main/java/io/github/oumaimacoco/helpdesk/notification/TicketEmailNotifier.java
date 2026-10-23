@@ -34,18 +34,15 @@ public class TicketEmailNotifier {
                 add(recipients, ticket.getAssignee(), EmailReason.ASSIGNED_TO_YOU);
                 add(recipients, ticket.getRequester(), EmailReason.TICKET_HANDLED);
             }
-            case STARTED -> add(recipients, ticket.getRequester(), EmailReason.WORK_STARTED);
             case INFO_REQUESTED -> add(recipients, ticket.getRequester(), EmailReason.INFO_REQUESTED);
-            case INFO_PROVIDED -> add(recipients, ticket.getAssignee(), EmailReason.REQUESTER_REPLIED);
             case RESOLVED -> add(recipients, ticket.getRequester(), EmailReason.RESOLVED);
-            case CONFIRMED -> add(recipients, ticket.getAssignee(), EmailReason.CONFIRMED);
-            case REOPENED -> add(recipients, ticket.getAssignee(), EmailReason.REOPENED);
             case ESCALATED -> {
                 add(recipients, ticket.getRequester(), EmailReason.WAITING_FOR_AGENT);
                 addTeamLeads(recipients, ticket, EmailReason.ESCALATED_TO_TEAM);
             }
             case OVERDUE -> {
                 add(recipients, change.previousAssignee(), EmailReason.OVERDUE_AGENT);
+                add(recipients, ticket.getRequester(), EmailReason.WAITING_FOR_AGENT);
                 addTeamLeads(recipients, ticket, EmailReason.OVERDUE_TEAM);
             }
             case PICKUP_OVERDUE -> addTeamLeads(recipients, ticket, EmailReason.NOT_PICKED_UP);

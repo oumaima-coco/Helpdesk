@@ -91,7 +91,7 @@ class TicketEmailNotificationTest {
     }
 
     @Test
-    void requestingInformationEmailsTheRequesterAndTheReplyEmailsTheAgent() throws Exception {
+    void onlyNoticesAreEmailedNeverTheConversation() throws Exception {
         Created ticket = createTicket();
         action(ticket.id(), "take");
         action(ticket.id(), "start");
@@ -102,9 +102,11 @@ class TicketEmailNotificationTest {
                 .andExpect(status().isOk());
 
         assertThat(emails.findByRecipientOrderByIdAsc(requester.getEmail()))
-                .hasSize(3)
+                .hasSize(2)
                 .last()
-                .satisfies(email -> assertThat(email.getBody()).contains("Des informations vous sont demandées"));
+                .satisfies(email -> assertThat(email.getBody())
+                        .contains("Des informations vous sont demandées")
+                        .doesNotContain("Which printer is it?"));
 
         mockMvc.perform(post("/api/tickets/" + ticket.id() + "/comments")
                         .with(as(requester, Role.REQUESTER))
@@ -112,9 +114,7 @@ class TicketEmailNotificationTest {
                         .content("{\"body\": \"The one on floor 2\"}"))
                 .andExpect(status().isCreated());
 
-        assertThat(emails.findByRecipientOrderByIdAsc(agent.getEmail()))
-                .singleElement()
-                .satisfies(email -> assertThat(email.getBody()).contains("The requester has replied"));
+        assertThat(emails.findByRecipientOrderByIdAsc(agent.getEmail())).isEmpty();
     }
 
     @Test
